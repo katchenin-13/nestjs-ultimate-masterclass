@@ -1,14 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { MessageFormaterService } from 'src/message-formater/message-formater.service';
+import { MessageFormatterService } from 'src/message-formatter.service/message-formater.service';
 
 @Injectable()
 export class LoggerService {
     constructor(
-        private readonly messageFormaterService: MessageFormaterService
+        private readonly messageFormaterService: MessageFormatterService
     ) {}
-    log(message: string): string {
-        const formattedMessage = this.messageFormaterService.formatMessage(message);
-        console.log(formattedMessage);
-        return formattedMessage;
-   }
+
+
+   log(message: string): string {
+    const sanitized = message.replace(/[\r\n]/g, ' ');
+    const formattedMessage = this.messageFormaterService.format(sanitized);
+    console.log(formattedMessage);
+    return formattedMessage;
+}
+
 }
