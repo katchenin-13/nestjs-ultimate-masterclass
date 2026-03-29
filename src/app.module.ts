@@ -1,19 +1,22 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { DummyService } from './dummy/dummy.service';
-import { MessageFormatterService } from './message-formatter.service/message-formater.service';
-import { LoggerService } from './logger/logger.service';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { AppConfig } from './config/app.config';
+import { appConfigSchema } from './config/config.types';
 import { TasksModule } from './task/tasks.module';
-import { appConfig } from './config/app.config';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ load: [appConfig], isGlobal: true }),
+    ConfigModule.forRoot({
+      load: [AppConfig],
+      validationSchema: appConfigSchema,
+      isGlobal: true,
+    }),
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => config.get<TypeOrmModuleOptions>('database')!,
+    }),
     TasksModule,
   ],
-  controllers: [AppController],
-  providers: [AppService, DummyService, MessageFormatterService, LoggerService],
 })
 export class AppModule {}
